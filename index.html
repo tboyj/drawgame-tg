@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="styles.css">
+  <title>Document</title>
+</head>
+<body>
+    <header>
+    <h1>Drawgame Testing Grounds</h1>
+    </header>
+  <div id="app">
+    <div class="drawing-board">
+        <canvas
+            ref="canvas"
+            width="640"
+            height="480"
+            :style="{ borderRadius: '4px', border: '1px solid red', backgroundColor: ogBgHex }"
+        ></canvas>
+
+    <!-- youoraudience // Your (1st person), username  (3rd person)-->
+    <!-- red border is temporary -->
+
+        <div class="colors">
+            <button @click="baseColors('#000000')" style="background-color: black; color: white;">Black</button>
+            <button @click="baseColors('#FF0000')" style="background-color: red;">Red</button>
+            <button @click="baseColors('#FFA500')" style="background-color: orange;">Orange</button>
+            <button @click="baseColors('#FFFF00')" style="background-color: yellow;">Yellow</button>
+            <button @click="baseColors('#00FF00')" style="background-color: green;">Green</button>
+            <button @click="baseColors('#0000FF')" style="background-color: blue;">Blue</button>
+            <button @click="baseColors('#800080')" style="background-color: purple; color: white;">Purple</button>
+            <button @click="baseColors('#FFFFFF')" style="background-color: white; color: black;">White</button>
+            <button @click="eraser" style="background-color: white; color: black;">Eraser</button>
+            <input type="color" v-model="selectedColor" @click="colorPicker" ></input></button>
+            <button @click="clearCanvas">Clear</button>
+            <input type="range" min="2" max="20" v-model="lineWidth" @input="updateLineWidth" >
+        </div>
+    </div>
+  </div>
+
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+<script>
+const { createApp, ref, onMounted } = Vue;
+
+createApp({
+  setup() {
+
+    const lineWidth = ref(1);
+
+    const ogBgHex = ref("#ffffff");
+    var scHex = "#000000";
+
+    const canvas = ref(null);
+    var ctx;
+    let drawing = false;
+
+    const start = (e) => { drawing = true; draw(e); }
+    const stop = () => { drawing = false; ctx.beginPath(); }
+
+    const draw = (e) => {
+      if (!drawing) return;
+      const rect = canvas.value.getBoundingClientRect();
+      ctx.lineCap = "round";
+      ctx.strokeStyle = scHex;
+      ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+    }
+
+    const clearCanvas = () => {
+      ctx.clearRect(0, 0, canvas.value.width, canvas.value.height);
+    }
+
+    const baseColors = (color) => {
+      scHex = color;
+      ctx.strokeStyle = scHex;
+    }
+
+    const colorPicker = () => {
+      scHex = selectedColor.value;
+      ctx.strokeStyle = scHex;
+    }
+
+    const eraser = () => {
+      scHex = ogBgHex.value;
+      ctx.strokeStyle = scHex;
+    }
+
+    const updateLineWidth = () => {
+      ctx.lineWidth = lineWidth.value;
+    }
+
+    onMounted(() => {
+      ctx = canvas.value.getContext("2d");
+      canvas.value.addEventListener("mousedown", start);
+      canvas.value.addEventListener("mouseup", stop);
+      canvas.value.addEventListener("mousemove", draw);
+      canvas.value.addEventListener("mouseout", stop);
+    });
+
+    return { canvas, clearCanvas, baseColors, eraser, ogBgHex, updateLineWidth, lineWidth };
+  }
+}).mount("#app");
+</script>

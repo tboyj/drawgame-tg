@@ -1,0 +1,13 @@
+
+.colors {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+}
+.drawing-board canvas {
+    display: block;
+    margin: 0 auto;
+}
+.settings { display: flex; justify-content: space-between; text-align: center; max-width: 640px; margin-left: auto; margin-right: auto; }
